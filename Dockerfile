@@ -1,6 +1,4 @@
-# Build + run the stdio MCP server. No token is needed to start: the server lists
-# its tools without credentials (so registries can introspect it), and requires
-# WEEEK_API_TOKEN only when a tool actually calls the WEEEK API.
+# Build the server and run the protected Streamable HTTP MCP endpoint.
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json tsconfig.json ./
@@ -14,4 +12,4 @@ ENV NODE_ENV=production
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
-ENTRYPOINT ["node", "dist/index.js"]
+CMD ["node", "dist/http-server.js"]
