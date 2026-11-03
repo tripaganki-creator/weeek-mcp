@@ -3,53 +3,26 @@
   "version": "1.0.2",
   "mcpName": "io.github.IlyaIvanchikov/weeek-mcp-smart",
   "description": "WEEEK tasks and CRM by name, not IDs — an MCP server covering the whole public API",
-  "keywords": [
-    "mcp",
-    "model-context-protocol",
-    "weeek",
-    "claude",
-    "task-tracker",
-    "productivity",
-    "crm"
-  ],
+  "keywords": ["mcp", "model-context-protocol", "weeek", "claude", "task-tracker", "productivity", "crm"],
   "license": "MIT",
   "author": "Ilya Ivanchikov <ilyaivanchikov96@mail.ru> (https://www.linkedin.com/in/ilyaivanchikov)",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/IlyaIvanchikov/weeek-mcp.git"
-  },
+  "repository": { "type": "git", "url": "git+https://github.com/IlyaIvanchikov/weeek-mcp.git" },
   "homepage": "https://github.com/IlyaIvanchikov/weeek-mcp#readme",
-  "bugs": {
-    "url": "https://github.com/IlyaIvanchikov/weeek-mcp/issues"
-  },
+  "bugs": { "url": "https://github.com/IlyaIvanchikov/weeek-mcp/issues" },
   "type": "module",
-  "bin": {
-    "weeek-mcp-smart": "dist/index.js"
-  },
-  "files": [
-    "dist"
-  ],
-  "engines": {
-    "node": ">=18"
-  },
+  "bin": { "weeek-mcp-smart": "dist/index.js" },
+  "files": ["dist"],
+  "engines": { "node": ">=18" },
   "scripts": {
     "prebuild": "node -e \"require('node:fs').rmSync('dist', { recursive: true, force: true })\"",
     "build": "tsc -p tsconfig.json",
+    "start:http": "node dist/http-server.js",
     "test": "vitest run",
     "typecheck": "tsc --noEmit && tsc -p tsconfig.tests.json",
     "refresh-spec": "node scripts/refresh-spec.mjs",
     "pack:mcpb": "bash scripts/pack-mcpb.sh",
     "prepublishOnly": "npm run build"
   },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.0.0",
-    "chrono-node": "^2.10.0",
-    "zod": "^3.23.0"
-  },
-  "devDependencies": {
-    "@types/node": "^22.0.0",
-    "typescript": "^5.5.0",
-    "vitest": "^2.0.0",
-    "esbuild": "^0.23.0"
-  }
+  "dependencies": { "@modelcontextprotocol/sdk": "^1.0.0", "chrono-node": "^2.10.0", "zod": "^3.23.0" },
+  "devDependencies": { "@types/node": "^22.0.0", "typescript": "^5.5.0", "vitest": "^2.0.0", "esbuild": "^0.23.0" }
 }
