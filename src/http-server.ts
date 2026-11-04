@@ -20,10 +20,7 @@ async function main(): Promise<void> {
   if (!config.token) console.error("weeek-mcp-smart: WEEEK_API_TOKEN not set — calls will fail until it is provided.");
   const oauth = new PrivateOAuth(process.env.MCP_ACCESS_CODE);
   if (!oauth.configured()) console.error("weeek-mcp-smart: MCP_ACCESS_CODE not set — remote access is disabled.");
-  const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
-  const server = buildServer(config);
-  await server.connect(transport);
-  createServer(async (req, res) => {
+  const httpServer = createServer(async (req, res) => {
     const url = new URL(req.url ?? "/", "http://" + (req.headers.host ?? "localhost"));
     const origin = originFor(req);
     if (url.pathname === "/health") {
@@ -44,11 +41,26 @@ async function main(): Promise<void> {
     if (!oauth.configured() || !oauth.isAuthorized(req.headers.authorization)) {
       oauth.challenge(res, origin, MCP_PATH); return;
     }
-    try { await transport.handleRequest(req, res); }
+    // Stateless transports may handle only one request, including across clients.
+    const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+    const server = buildServer(config);
+    transport.onerror = (error) => console.error("weeek-mcp-smart transport error: " + error.message);
+    res.once("close", () => {
+      void server.close().catch((error: Error) => console.error("weeek-mcp-smart cleanup failed: " + error.message));
+    });
+    try {
+      await server.connect(transport);
+      await transport.handleRequest(req, res);
+    }
     catch (error) {
       console.error("weeek-mcp-smart HTTP request failed: " + (error as Error).message);
       if (!res.headersSent) { res.writeHead(500, { "content-type": "application/json" }); res.end(JSON.stringify({ error: "Internal server error" })); }
     }
-  }).listen(PORT, "0.0.0.0", () => console.error("weeek-mcp-smart listening on http://0.0.0.0:" + PORT + MCP_PATH));
+  });
+  httpServer.listen(PORT, "0.0.0.0", () => {
+    const address = httpServer.address();
+    const port = address && typeof address === "object" ? address.port : PORT;
+    console.error("weeek-mcp-smart listening on http://0.0.0.0:" + port + MCP_PATH);
+  });
 }
 main().catch((error) => { console.error("weeek-mcp-smart failed to start: " + (error as Error).message); process.exit(1); });
